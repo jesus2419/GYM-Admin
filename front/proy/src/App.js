@@ -1,11 +1,23 @@
 import React from 'react';
 import Login from './login'
+import Dashboard from './Dashboard';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 
 function App() {
   return (
+    <Router>
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      {/* Otras rutas */}
+    </Routes>
+  </Router>
+    /*
     <div className="App">
       <Login />
     </div>
+    */
   );
 }
 

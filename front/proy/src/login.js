@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { 
@@ -23,6 +23,8 @@ function Login() {
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => { // Añadido async aquí
+
+    /*
     event.preventDefault();
     const email = event.target.email.value;
     const password = event.target.password.value;
@@ -56,6 +58,10 @@ function Login() {
     } finally {
       setLoading(false);
     }
+      */
+
+    // Redirigir usando react-router
+    navigate('/dashboard');
 
     
   };
