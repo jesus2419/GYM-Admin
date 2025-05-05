@@ -1,4 +1,6 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { 
   Avatar,
   Button,
@@ -15,13 +17,47 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 const defaultTheme = createTheme();
 
 function Login() {
-  const handleSubmit = (event) => {
+
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event) => { // Añadido async aquí
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    const email = event.target.email.value;
+    const password = event.target.password.value;
+
+    if (!email || !password) {
+      setError('Por favor complete todos los campos');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, {
+        email,
+        password,
+      });
+
+      // Guardar token y datos de usuario
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      
+      // Redirigir usando react-router
+      navigate('/dashboard');
+      
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || 
+                         err.message || 
+                         'Error al iniciar sesión';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+
+    
   };
 
   return (
