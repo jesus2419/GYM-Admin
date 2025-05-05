@@ -93,6 +93,10 @@ CREATE TABLE IF NOT EXISTS paydays (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+select * from plans;
+select * from payment_options;
+
+
 -- Insertar planes básicos
 INSERT INTO plans (name, description, duration_days, price) VALUES 
 ('Básico', 'Plan básico con acceso esencial', 30, 299.00),
