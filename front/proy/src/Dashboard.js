@@ -1,82 +1,142 @@
-import React from 'react';
-import { 
+import React, { useState } from 'react';
+import {
   Box,
-  Typography,
-  AppBar,
-  Button,
-
-  Toolbar,
-  IconButton,
-  Container,
   CssBaseline,
-  ThemeProvider,
-  createTheme
+  Drawer,
+  AppBar,
+  Toolbar,
+  Typography,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  Container,
+  Paper,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  IconButton
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import { useNavigate } from 'react-router-dom';
+import {
+  People,
+  FitnessCenter,
+  Payment,
+  EventNote,
+  CreditCard,
+  AccountCircle,
+  Menu
+} from '@mui/icons-material';
 
-const defaultTheme = createTheme();
+const drawerWidth = 240;
 
-function Dashboard() {
-  const navigate = useNavigate();
+const dummyUsers = [
+  {
+    id: 1,
+    first_name: 'Juan',
+    paternal_last_name: 'Pérez',
+    maternal_last_name: 'Gómez',
+    phone: '555-1234',
+    email: 'juan.perez@example.com'
+  },
+  {
+    id: 2,
+    first_name: 'María',
+    paternal_last_name: 'López',
+    maternal_last_name: 'Martínez',
+    phone: '555-5678',
+    email: 'maria.lopez@example.com'
+  }
+];
 
-  const handleLogout = () => {
-    // Limpiar el token de autenticación
-    localStorage.removeItem('token');
-    // Redirigir al login
-    navigate('/');
+const navItems = [
+  { text: 'Usuarios', icon: <People /> },
+  { text: 'Planes', icon: <FitnessCenter /> },
+  { text: 'Opciones de Pago', icon: <Payment /> },
+  { text: 'Subscripciones', icon: <EventNote /> },
+  { text: 'Pagos Programados', icon: <CreditCard /> },
+  { text: 'Entrenadores', icon: <AccountCircle /> }
+];
+
+export default function Dashboard() {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <Box sx={{ display: 'flex' }}>
-        <CssBaseline />
-        <AppBar position="fixed">
-          <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              sx={{ mr: 2 }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-              Panel de Control
-            </Typography>
-            <Button color="inherit" onClick={handleLogout}>
-              Cerrar sesión
-            </Button>
-          </Toolbar>
-        </AppBar>
-        
-        <Box
-          component="main"
-          sx={{
-            flexGrow: 1,
-            p: 3,
-            width: '100%',
-            minHeight: '100vh',
-            backgroundColor: (theme) => 
-              theme.palette.mode === 'light'
-                ? theme.palette.grey[100]
-                : theme.palette.grey[900],
-          }}
-        >
-          <Toolbar /> {/* Espacio para el AppBar */}
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Typography variant="h2" gutterBottom>
-              Bienvenido al Dashboard
-            </Typography>
-            <Typography variant="body1">
-              Esta es la pantalla principal de tu aplicación. Aquí puedes agregar gráficos, 
-              estadísticas o cualquier otro contenido relevante.
-            </Typography>
-          </Container>
+    <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
+      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+        <Toolbar>
+          <IconButton color="inherit" edge="start" sx={{ mr: 2 }} onClick={toggleDrawer}>
+            <Menu />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div">
+            Panel de Administración
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
+      <Drawer
+        variant="temporary"
+        open={drawerOpen}
+        onClose={toggleDrawer}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' }
+        }}
+      >
+        <Toolbar />
+        <Box sx={{ overflow: 'auto' }}>
+          <List>
+            {navItems.map((item, index) => (
+              <ListItem button key={index}>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItem>
+            ))}
+          </List>
         </Box>
+      </Drawer>
+
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Toolbar />
+        <Typography variant="h4" gutterBottom>
+          Gestión de Usuarios
+        </Typography>
+        <Container>
+          <Paper elevation={3} sx={{ p: 2 }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>ID</TableCell>
+                  <TableCell>Nombre</TableCell>
+                  <TableCell>Apellido Paterno</TableCell>
+                  <TableCell>Apellido Materno</TableCell>
+                  <TableCell>Teléfono</TableCell>
+                  <TableCell>Email</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {dummyUsers.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.id}</TableCell>
+                    <TableCell>{user.first_name}</TableCell>
+                    <TableCell>{user.paternal_last_name}</TableCell>
+                    <TableCell>{user.maternal_last_name}</TableCell>
+                    <TableCell>{user.phone}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Paper>
+        </Container>
       </Box>
-    </ThemeProvider>
+    </Box>
   );
 }
-
-export default Dashboard;
