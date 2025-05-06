@@ -18,7 +18,13 @@ import {
   TableRow,
   TableCell,
   TableBody,
-  IconButton
+  IconButton,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField
 } from '@mui/material';
 import {
   People,
@@ -32,7 +38,7 @@ import {
 
 const drawerWidth = 240;
 
-const dummyUsers = [
+const dummyUsersInitial = [
   {
     id: 1,
     first_name: 'Juan',
@@ -62,9 +68,57 @@ const navItems = [
 
 export default function Dashboard() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [users, setUsers] = useState(dummyUsersInitial);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [formData, setFormData] = useState({
+    first_name: '',
+    paternal_last_name: '',
+    maternal_last_name: '',
+    phone: '',
+    email: ''
+  });
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
+  };
+
+  const handleOpenDialog = (user = null) => {
+    setEditingUser(user);
+    if (user) {
+      setFormData(user);
+    } else {
+      setFormData({
+        first_name: '',
+        paternal_last_name: '',
+        maternal_last_name: '',
+        phone: '',
+        email: ''
+      });
+    }
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = () => {
+    if (editingUser) {
+      setUsers(users.map(u => u.id === editingUser.id ? { ...formData, id: editingUser.id } : u));
+    } else {
+      const newId = users.length ? Math.max(...users.map(u => u.id)) + 1 : 1;
+      setUsers([...users, { ...formData, id: newId }]);
+    }
+    setDialogOpen(false);
+  };
+
+  const handleDelete = (id) => {
+    setUsers(users.filter(u => u.id !== id));
   };
 
   return (
@@ -108,6 +162,11 @@ export default function Dashboard() {
         <Typography variant="h4" gutterBottom>
           Gestión de Usuarios
         </Typography>
+
+        <Button variant="contained" color="primary" onClick={() => handleOpenDialog()} sx={{ mb: 2 }}>
+          Agregar Usuario
+        </Button>
+
         <Container>
           <Paper elevation={3} sx={{ p: 2 }}>
             <Table>
@@ -119,10 +178,11 @@ export default function Dashboard() {
                   <TableCell>Apellido Materno</TableCell>
                   <TableCell>Teléfono</TableCell>
                   <TableCell>Email</TableCell>
+                  <TableCell>Acciones</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {dummyUsers.map((user) => (
+                {users.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>{user.id}</TableCell>
                     <TableCell>{user.first_name}</TableCell>
@@ -130,12 +190,68 @@ export default function Dashboard() {
                     <TableCell>{user.maternal_last_name}</TableCell>
                     <TableCell>{user.phone}</TableCell>
                     <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <Button size="small" onClick={() => handleOpenDialog(user)}>Editar</Button>
+                      <Button size="small" color="error" onClick={() => handleDelete(user.id)}>Eliminar</Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </Paper>
         </Container>
+
+        <Dialog open={dialogOpen} onClose={handleCloseDialog} fullWidth>
+          <DialogTitle>{editingUser ? 'Editar Usuario' : 'Agregar Usuario'}</DialogTitle>
+          <DialogContent>
+            <TextField
+              margin="dense"
+              label="Nombre"
+              name="first_name"
+              fullWidth
+              value={formData.first_name}
+              onChange={handleChange}
+            />
+            <TextField
+              margin="dense"
+              label="Apellido Paterno"
+              name="paternal_last_name"
+              fullWidth
+              value={formData.paternal_last_name}
+              onChange={handleChange}
+            />
+            <TextField
+              margin="dense"
+              label="Apellido Materno"
+              name="maternal_last_name"
+              fullWidth
+              value={formData.maternal_last_name}
+              onChange={handleChange}
+            />
+            <TextField
+              margin="dense"
+              label="Teléfono"
+              name="phone"
+              fullWidth
+              value={formData.phone}
+              onChange={handleChange}
+            />
+            <TextField
+              margin="dense"
+              label="Email"
+              name="email"
+              fullWidth
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog}>Cancelar</Button>
+            <Button onClick={handleSave} variant="contained">
+              Guardar
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Box>
   );
