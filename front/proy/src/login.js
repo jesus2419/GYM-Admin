@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import axios from 'axios';
+
 import { 
   Avatar,
   Button,
@@ -10,60 +12,98 @@ import {
   Typography,
   Container,
   ThemeProvider,
-  createTheme
+  createTheme,
+  Snackbar,
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 const defaultTheme = createTheme();
 
 function Login() {
-
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('error');
   const navigate = useNavigate();
 
-  const handleSubmit = async (event) => { // Añadido async aquí
 
-    /*
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
+
+  const showSnackbar = (message, severity = 'error') => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const email = event.target.email.value;
     const password = event.target.password.value;
-
+  
     if (!email || !password) {
-      setError('Por favor complete todos los campos');
+      showSnackbar('Por favor complete todos los campos');
       return;
     }
-
+  
     setLoading(true);
     setError(null);
-
+  
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, {
+      const response = await axios.post('http://192.168.56.1:3001/api/login', {
         email,
-        password,
+        password
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 5000 // 5 segundos de timeout
       });
-
-      // Guardar token y datos de usuario
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      
-      // Redirigir usando react-router
-      navigate('/dashboard');
-      
+  
+      console.log('Respuesta API:', response.data);
+  
+      if (response.data.token && response.data.user) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        showSnackbar('Inicio de sesión exitoso', 'success');
+        setTimeout(() => navigate('/dashboard'), 1500);
+      } else {
+        throw new Error('Respuesta de API inválida');
+      }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 
-                         err.message || 
-                         'Error al iniciar sesión';
-      setError(errorMessage);
+      console.error('Error en login:', err);
+      
+      let errorMessage = 'Error al iniciar sesión';
+      
+      if (err.code === 'ECONNABORTED') {
+        errorMessage = 'El servidor no responde. Intente nuevamente más tarde';
+      } else if (err.message === 'Network Error') {
+        errorMessage = 'No se pudo conectar al servidor. Verifique su conexión';
+      } else if (err.response) {
+        if (err.response.status === 401) {
+          errorMessage = 'Credenciales incorrectas';
+        } else if (err.response.status === 500) {
+          errorMessage = 'Error del servidor';
+        } else if (err.response.data?.message) {
+          errorMessage = err.response.data.message;
+        }
+      }
+      
+      showSnackbar(errorMessage);
     } finally {
       setLoading(false);
     }
-      */
-
-    // Redirigir usando react-router
-    navigate('/dashboard');
-
-    
   };
 
   return (
@@ -76,7 +116,7 @@ function Login() {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            minHeight: '100vh', // Ocupa toda la altura de la pantalla
+            minHeight: '100vh',
             textAlign: 'center'
           }}
         >
@@ -90,10 +130,7 @@ function Login() {
             component="form" 
             onSubmit={handleSubmit} 
             noValidate 
-            sx={{ 
-              mt: 1,
-              width: '100%' // Asegura que los campos usen todo el ancho disponible
-            }}
+            sx={{ mt: 1, width: '100%' }}
           >
             <TextField
               margin="normal"
@@ -120,12 +157,29 @@ function Login() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              disabled={loading}
             >
-              Acceder
+              {loading ? <CircularProgress size={24} color="inherit" /> : 'Acceder'}
             </Button>
           </Box>
         </Box>
       </Container>
+
+      {/* Snackbar para mostrar mensajes */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   );
 }

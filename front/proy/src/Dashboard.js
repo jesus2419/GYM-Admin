@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import {
   Box,
   CssBaseline,
@@ -36,7 +38,10 @@ import {
   Menu
 } from '@mui/icons-material';
 
+
+
 const drawerWidth = 240;
+
 
 const dummyUsersInitial = [
   {
@@ -79,6 +84,15 @@ export default function Dashboard() {
     email: ''
   });
 
+  
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/');
+  };
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
   };
@@ -125,14 +139,21 @@ export default function Dashboard() {
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-        <Toolbar>
+            <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <IconButton color="inherit" edge="start" sx={{ mr: 2 }} onClick={toggleDrawer}>
             <Menu />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
             Panel de Administración
           </Typography>
-        </Toolbar>
+        </Box>
+
+        <Button color="inherit" onClick={handleLogout}>
+          Cerrar sesión
+        </Button>
+      </Toolbar>
+
       </AppBar>
 
       <Drawer
