@@ -22,7 +22,7 @@ function LoginRedirect() {
     })
     .then(() => {
       setIsValid(true);
-      navigate('/dashboard');
+      navigate('/users');
     })
     .catch(() => {
       localStorage.removeItem('token');

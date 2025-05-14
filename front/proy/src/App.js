@@ -5,6 +5,8 @@ import Dashboard from './Dashboard';
 import { DrawerProvider } from './context/DrawerContext';
 import UsersPage from './pages/UsersPage';
 import PrivateRoute from './PrivateRoute';
+import PlansPage from './pages/PlansPage';
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
@@ -27,6 +29,14 @@ function App() {
             element={
               <PrivateRoute>
                 <UsersPage />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/plans" 
+            element={
+              <PrivateRoute>
+                <PlansPage/>
               </PrivateRoute>
             } 
           />
