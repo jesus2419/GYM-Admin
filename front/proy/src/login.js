@@ -77,7 +77,7 @@ function Login() {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
         showSnackbar('Inicio de sesión exitoso', 'success');
-        setTimeout(() => navigate('/dashboard'), 1500);
+        setTimeout(() => navigate('/users'), 1500);
       } else {
         throw new Error('Respuesta de API inválida');
       }
