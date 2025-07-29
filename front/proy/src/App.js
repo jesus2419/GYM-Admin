@@ -1,39 +1,49 @@
 import React from 'react';
-import Login from './login'
+import Login from './login';
+import LoginRedirect from './LoginRedirect';
+import Dashboard from './Dashboard';
+import { DrawerProvider } from './context/DrawerContext';
+import UsersPage from './pages/UsersPage';
+import PrivateRoute from './PrivateRoute';
+import PlansPage from './pages/PlansPage';
+
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
   return (
-    <div className="App">
-      <Login />
-    </div>
+    <Router>
+      <DrawerProvider> {/* Mueve DrawerProvider aquí para que cubra todas las rutas */}
+        <Routes>
+          <Route path="/" element={<LoginRedirect />} />
+          <Route path="/login" element={<Login />} />
+          <Route 
+            path="/dashboard" 
+            element={
+              <PrivateRoute>
+                <Dashboard /> {/* Cambié UsersPage por Dashboard para mantener consistencia */}
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/users" 
+            element={
+              <PrivateRoute>
+                <UsersPage />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/plans" 
+            element={
+              <PrivateRoute>
+                <PlansPage/>
+              </PrivateRoute>
+            } 
+          />
+        </Routes>
+      </DrawerProvider>
+    </Router>
   );
 }
 
 export default App;
-/*import logo from './logo.svg';
-import './App.css';
-
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
-
-export default App;
-
-*/
